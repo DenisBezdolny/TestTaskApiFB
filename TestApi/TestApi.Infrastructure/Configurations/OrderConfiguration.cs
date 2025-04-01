@@ -17,7 +17,7 @@ namespace TestApi.Infrastructure.Configurations
 
             builder.Property(o => o.Date)
                 .IsRequired()
-                .HasColumnType("datetime2(7)");
+                .HasColumnType("timestamp without time zone");
 
             builder.Property(o => o.ProviderId)
                 .IsRequired();
