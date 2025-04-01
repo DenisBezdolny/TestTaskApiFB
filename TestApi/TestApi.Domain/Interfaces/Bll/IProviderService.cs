@@ -1,6 +1,6 @@
 ﻿namespace TestApi.Domain.Interfaces.Bll
 {
-    internal interface IProviderService
+    public interface IProviderService
     {
     }
 }
