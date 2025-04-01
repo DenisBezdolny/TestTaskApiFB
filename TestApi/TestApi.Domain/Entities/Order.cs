@@ -8,6 +8,5 @@
         public int ProviderId { get; set; }
 
         public IEnumerable<OrderItem> OrderItems { get; set; }
-        public Provider Provider { get; set; }
     }
 }

@@ -15,10 +15,12 @@ namespace TestApi.Infrastructure.Configurations
             builder.Property(p => p.Name)
                 .IsRequired();
 
-            builder.HasMany(p => p.Orders)
-                .WithOne(o => o.Provider)
-                .HasForeignKey(o => o.ProviderId)
-                .OnDelete(DeleteBehavior.Restrict);
+            // Preset data for the Providers table
+            builder.HasData(
+                new Provider { Id = 1, Name = "Поставщик А" },
+                new Provider { Id = 2, Name = "Поставщик B" },
+                new Provider { Id = 3, Name = "Поставщик C" }
+            );
         }
     }
 }
