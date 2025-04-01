@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TestApi.Infrastructure;
@@ -11,9 +12,11 @@ using TestApi.Infrastructure;
 namespace TestApi.Infrastructure.Migrations
 {
     [DbContext(typeof(TestApiDbContext))]
-    partial class TestApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250401180220_DeleteWrongRelationAndAddPresetProviderMigration")]
+    partial class DeleteWrongRelationAndAddPresetProviderMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
