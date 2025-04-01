@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TestApi.Domain.Entities;
+using TestApi.Infrastructure.Configurations;
 
 namespace TestApi.Infrastructure
 {
@@ -15,7 +16,9 @@ namespace TestApi.Infrastructure
         {
             base.OnModelCreating(modelBuilder);
 
-        
+            modelBuilder.ApplyConfiguration(new OrderConfiguration());
+            modelBuilder.ApplyConfiguration(new OrderItemConfiguration());
+            modelBuilder.ApplyConfiguration(new ProviderConfiguration());
         }
     }
 }
