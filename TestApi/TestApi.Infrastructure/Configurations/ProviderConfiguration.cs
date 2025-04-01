@@ -14,6 +14,11 @@ namespace TestApi.Infrastructure.Configurations
 
             builder.Property(p => p.Name)
                 .IsRequired();
+
+            builder.HasMany(p => p.Orders)
+                .WithOne(o => o.Provider)
+                .HasForeignKey(o => o.ProviderId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
