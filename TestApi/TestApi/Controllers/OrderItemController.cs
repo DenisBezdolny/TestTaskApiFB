@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using TestApi.DTOs;
 using TestApi.DTOs.CreateDTOs;
 using TestApi.Domain.Entities;
@@ -32,41 +30,67 @@ namespace TestApi.Controllers
             [FromQuery] string name = null,
             [FromQuery] string unit = null)
         {
-            var filterDto = new OrderItemFilterDto
+            try
             {
-                Name = name,
-                Unit = unit
-            };
+                var filterDto = new OrderItemFilterDto
+                {
+                    Name = name,
+                    Unit = unit
+                };
 
-            var orderItems = await _orderItemService.GetOrderItemsByOrderIdAsync(orderId, filterDto);
-            var orderItemDtos = _mapper.Map<IEnumerable<OrderItemDto>>(orderItems);
-            return Ok(orderItemDtos);
+                var orderItems = await _orderItemService.GetOrderItemsByOrderIdAsync(orderId, filterDto);
+                var orderItemDtos = _mapper.Map<IEnumerable<OrderItemDto>>(orderItems);
+                return Ok(orderItemDtos);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка получения элементов заказа для OrderId: {OrderId}", orderId);
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         // GET: api/OrderItems/5
         [HttpGet("{id}")]
         public async Task<ActionResult<OrderItemDto>> GetOrderItem(int id)
         {
-            var orderItem = await _orderItemService.GetOrderItemByIdAsync(id);
-            if (orderItem == null)
-                return NotFound();
-            var orderItemDto = _mapper.Map<OrderItemDto>(orderItem);
-            return Ok(orderItemDto);
+            try
+            {
+                var orderItem = await _orderItemService.GetOrderItemByIdAsync(id);
+                if (orderItem == null)
+                    return NotFound();
+                var orderItemDto = _mapper.Map<OrderItemDto>(orderItem);
+                return Ok(orderItemDto);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка получения элемента заказа с ID: {Id}", id);
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         // POST: api/OrderItems
         [HttpPost]
         public async Task<ActionResult> CreateOrderItem([FromBody] CreateOrderItemDto createOrderItemDto)
         {
-            _logger.LogInformation("Received CreateOrderItemDto: {@CreateOrderItemDto}", createOrderItemDto);
-
-            var orderItem = _mapper.Map<OrderItem>(createOrderItemDto);
-            await _orderItemService.CreateOrderItemAsync(orderItem);
-
-            _logger.LogInformation("Created OrderItem with ID: {OrderItemId}", orderItem.Id);
-
-            var orderItemDto = _mapper.Map<OrderItemDto>(orderItem);
-            return CreatedAtAction(nameof(GetOrderItem), new { id = orderItem.Id }, orderItemDto);
+            try
+            {
+                _logger.LogInformation("Received CreateOrderItemDto: {@CreateOrderItemDto}", createOrderItemDto);
+                var orderItem = _mapper.Map<OrderItem>(createOrderItemDto);
+                await _orderItemService.CreateOrderItemAsync(orderItem);
+                _logger.LogInformation("Created OrderItem with ID: {OrderItemId}", orderItem.Id);
+                var orderItemDto = _mapper.Map<OrderItemDto>(orderItem);
+                return CreatedAtAction(nameof(GetOrderItem), new { id = orderItem.Id }, orderItemDto);
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Ошибка создания элемента заказа");
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "Внутренняя ошибка при создании элемента заказа");
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         // PUT: api/OrderItems/5
@@ -75,17 +99,39 @@ namespace TestApi.Controllers
         {
             if (orderItemDto.Id != id)
                 return BadRequest("Некорректный ID элемента заказа.");
-            var orderItem = _mapper.Map<OrderItem>(orderItemDto);
-            await _orderItemService.UpdateOrderItemAsync(orderItem);
-            return NoContent();
+
+            try
+            {
+                var orderItem = _mapper.Map<OrderItem>(orderItemDto);
+                await _orderItemService.UpdateOrderItemAsync(orderItem);
+                return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Ошибка обновления элемента заказа с ID: {Id}", id);
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "Внутренняя ошибка при обновлении элемента заказа с ID: {Id}", id);
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         // DELETE: api/OrderItems/5
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteOrderItem(int id)
         {
-            await _orderItemService.DeleteOrderItemAsync(id);
-            return NoContent();
+            try
+            {
+                await _orderItemService.DeleteOrderItemAsync(id);
+                return NoContent();
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка удаления элемента заказа с ID: {Id}", id);
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
     }
 }

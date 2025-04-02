@@ -10,10 +10,13 @@ namespace TestApi.Bll.Services
     public class OrderItemService : IOrderItemService
     {
         private readonly IRepository<OrderItem> _orderItemRepository;
+        private readonly IRepository<Order> _orderRepository;
 
-        public OrderItemService(IRepository<OrderItem> orderItemRepository)
+        public OrderItemService(IRepository<OrderItem> orderItemRepository,
+                                IRepository<Order> orderRepository)
         {
             _orderItemRepository = orderItemRepository;
+            _orderRepository = orderRepository;
         }
 
         public async Task<IEnumerable<OrderItem>> GetOrderItemsByOrderIdAsync(int orderId, OrderItemFilterDto filter)
@@ -46,11 +49,22 @@ namespace TestApi.Bll.Services
 
         public async Task CreateOrderItemAsync(OrderItem orderItem)
         {
+            // Получаем заказ для валидации
+            var order = await _orderRepository.GetByIdAsync(orderItem.OrderId);
+            if (order != null && orderItem.Name == order.Number)
+            {
+                throw new InvalidOperationException("Имя элемента заказа не может совпадать с номером заказа.");
+            }
             await _orderItemRepository.CreateAsync(orderItem);
         }
 
         public async Task UpdateOrderItemAsync(OrderItem orderItem)
         {
+            var order = await _orderRepository.GetByIdAsync(orderItem.OrderId);
+            if (order != null && orderItem.Name == order.Number)
+            {
+                throw new InvalidOperationException("Имя элемента заказа не может совпадать с номером заказа.");
+            }
             await _orderItemRepository.UpdateAsync(orderItem);
         }
 
