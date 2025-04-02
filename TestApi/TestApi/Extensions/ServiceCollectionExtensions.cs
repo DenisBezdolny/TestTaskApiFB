@@ -4,6 +4,7 @@ using TestApi.Domain.Interfaces.Repositories;
 using TestApi.Infrastructure;
 using TestApi.Infrastructure.Repositories;
 using TestApi.Bll.Services;
+using TestApi.Mapping;
 
 namespace TestApi.Extensions
 {
@@ -22,6 +23,8 @@ namespace TestApi.Extensions
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IOrderItemService, OrderItemService>();
             services.AddScoped<IProviderService, ProviderService>();
+
+            services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
             return services;
         }
