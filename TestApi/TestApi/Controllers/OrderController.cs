@@ -48,23 +48,46 @@ namespace TestApi.Controllers
         [HttpPost]
         public async Task<ActionResult> CreateOrder([FromBody] CreateOrderDto createOrderDto)
         {
-            // Маппим DTO для создания в доменную модель Order
-            var order = _mapper.Map<Order>(createOrderDto);
-            await _orderService.CreateOrderAsync(order);
-            // После создания, можно вернуть OrderDto, если нужно
-            var orderDto = _mapper.Map<OrderDto>(order);
-            return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, orderDto);
+            try
+            {
+                // Маппим DTO для создания в доменную модель Order
+                var order = _mapper.Map<Order>(createOrderDto);
+                await _orderService.CreateOrderAsync(order);
+                // После создания, можно вернуть OrderDto, если нужно
+                var orderDto = _mapper.Map<OrderDto>(order);
+                return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, orderDto);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Внутренняя ошибка сервера." });
+            }
         }
 
         // PUT: api/orders/5
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateOrder(int id, [FromBody] OrderDto orderDto)
         {
-            if (orderDto.Id != id)
-                return BadRequest("Некорректный ID заказа.");
-            var order = _mapper.Map<Order>(orderDto);
-            await _orderService.UpdateOrderAsync(order);
-            return NoContent();
+            try 
+            {
+                if (orderDto.Id != id)
+                    return BadRequest("Некорректный ID заказа.");
+                var order = _mapper.Map<Order>(orderDto);
+                await _orderService.UpdateOrderAsync(order);
+                return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Внутренняя ошибка сервера." });
+            }
+
         }
 
         // DELETE: api/orders/5
