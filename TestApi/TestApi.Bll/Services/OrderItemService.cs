@@ -20,7 +20,7 @@ namespace TestApi.Bll.Services
         {
             if (filter == null)
             {
-                return await _orderItemRepository.GetAllAsync();
+                return await _orderItemRepository.GetAllAsync(oi => oi.OrderId == orderId);
             }
 
             var predicate = PredicateBuilder.New<OrderItem>(oi => oi.OrderId == orderId);
@@ -32,7 +32,7 @@ namespace TestApi.Bll.Services
 
             if (!string.IsNullOrEmpty(filter.Unit))
             {
-                predicate = predicate.And(oi => oi.Name.Contains(filter.Unit));
+                predicate = predicate.And(oi => oi.Unit.Contains(filter.Unit));
             }
 
             Expression<Func<OrderItem, bool>> filterExpression = (Expression<Func<OrderItem, bool>>)predicate.Expand();
